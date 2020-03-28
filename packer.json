@@ -1,0 +1,92 @@
+{
+    "variables": {
+      
+      "client_id": "{{env `ARM_CLIENT_ID`}}",
+      "client_secret": "{{env `ARM_CLIENT_SECRET`}}",
+      "tenant_id": "{{env `ARM_TENANT_ID`}}",
+      "subscription_id": "{{env `ARM_SUBSCRIPTION_ID`}}",
+      
+      "managed_image_prefix": "",
+      "managed_image_resource_group_name": "",
+      
+      "windows_image_sku": "",
+      "azure_location": "",
+      
+      "WorkingDirectory": "{{env `System_DefaultWorkingDirectory`}}"
+
+    },
+    "builders": [
+        {
+            "type": "azure-arm",
+
+            "client_id": "{{user `client_id`}}",
+            "client_secret": "{{user `client_secret`}}",
+            "tenant_id": "{{user `tenant_id`}}",
+            "subscription_id": "{{user `subscription_id`}}",
+
+            "managed_image_name": "scimage-{{isotime \"200601020304\"}}",
+            "managed_image_resource_group_name": "{{user `managed_image_resource_group_name`}}",
+
+            "os_type": "Windows",
+            "image_publisher": "MicrosoftWindowsServer",
+            "image_offer": "WindowsServer",
+            "image_sku": "{{user `windows_image_sku`}}",
+
+            "communicator": "winrm",
+            "winrm_use_ssl": "true",
+            "winrm_insecure": "true",
+            "winrm_timeout": "3m",
+            "winrm_username": "packer",
+
+            "location": "{{user `azure_location`}}",
+            "vm_size": "Standard_DS2",
+            "async_resourcegroup_delete": true,
+
+            "azure_tags": {
+                "creationDate": "{{isotime \"200601020304\"}}",
+                "task": "Image deployment"
+            },
+            
+        }
+
+    ],
+    "provisioners": [
+      
+        {
+            "type": "powershell",
+            "inline": [
+              "WINRM QuickConfig -q",
+              "Install-PackageProvider Nuget -ForceBootstrap -Force",
+              "Set-PSRepository -Name PSGallery -InstallationPolicy Trusted",
+              "Install-Module -Name PowerShellGet -Force -AllowClobber"    
+              
+            ]
+        },
+        {
+            "type":"powershell",
+            "elevated_user": "packer",
+            "elevated_password": "{{.WinRMPassword}}",
+            "inline":[
+                "Install-Module -Name Pester -Force"
+            ]
+        },
+        {
+            "type": "dsc",
+            "manifest_file": "DSCConfiguration.ps1",
+            "configuration_name": "webConfiguration",
+            "install_package_management": true,           
+            "install_modules": {
+              "xPSDesiredStateConfiguration": "6.4.0.0",
+              "PackageManagement": "1.4.1"
+            }            
+        },
+        {
+            "type": "powershell",
+            "inline": [
+              "if( Test-Path $Env:SystemRoot\\windows\\system32\\Sysprep\\unattend.xml ){ rm $Env:SystemRoot\\windows\\system32\\Sysprep\\unattend.xml -Force}",
+              "& $Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /shutdown /quiet"
+            ]
+        }
+
+    ]
+}
