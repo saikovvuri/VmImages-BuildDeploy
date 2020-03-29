@@ -118,20 +118,25 @@ configuration PhpOnIis
         MatchSource = $true
     }
 
-
-
-     # Make sure the php cgi module is registered with IIS
-    <# xIisModule phpHandler
-    {
-        Name = "phpFastCgi"
-        Path = "$($PhpInstallPath)\php-cgi.exe"
-        RequestPath = "*.php"
-        Verb = "*"
-        Ensure = "Present"
-        ModuleType = "FastCgiModule"
-        DependsOn = @("[Package]vcRedist","[File]PhpIni")
+    # Make sure the php cgi module is registered with IIS
+    Script phpHandler {
         
-    } #>
+        GetScript = {                
+		    return @{
+			    Result = ""
+		    }
+	    }
+        TestScript = {
+		    $currentStatus = Get-WebHandler -Name "PHP-FastCGI"
+		    Write-Debug "$($currentStatus)"
+		    return ($null -ne $currentStatus)                
+	    }
+        SetScript = {
+            $phpCgiPath = "$($using:PhpInstallPath)\php-cgi.exe"
+            New-WebHandler -Name "PHP-FastCGI" -Path "*.php" -Verb "*" -Modules "FastCgiModule" -ScriptProcessor $phpCgiPath -ResourceType Either
+        }
+        DependsOn = @("[Package]vcRedist","[File]PhpIni")
+    }
 
     # Make sure the php binary folder is in the path
     Environment PathPhp
@@ -152,7 +157,4 @@ PhpOnIis -PackageFolder "C:\packages" `
 
 #Apply the configuration
 Start-DscConfiguration -Path .\PhpOnIis -Wait -Verbose -Force
-
-#Module Mapping not working with xIisModule
-New-WebHandler -Name "PHP-FastCGI" -Path "*.php" -Verb "*" -Modules "FastCgiModule" -ScriptProcessor "c:\php\php-cgi.exe" -ResourceType Either
     
