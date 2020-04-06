@@ -1,0 +1,9 @@
+#Create the MOF
+PhpOnIis -PackageFolder "C:\packages" `
+    -PhpDownloadUri  "https://windows.php.net/downloads/releases/php-7.4.4-nts-Win32-vc15-x64.zip"`
+    -VcplusRedistDownloadUri "https://aka.ms/vs/16/release/vc_redist.x64.exe" `
+    -PhpInstallPath "C:\php"
+
+#Apply the configuration
+Start-DscConfiguration -Path .\PhpOnIis -Wait -Verbose -Force
+    

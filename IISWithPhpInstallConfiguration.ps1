@@ -1,6 +1,3 @@
-Install-Module -Name xWebAdministration
-Install-Module xPSDesiredStateConfiguration
-
 configuration PhpOnIis
 {
      param
@@ -77,6 +74,7 @@ configuration PhpOnIis
         Arguments = "/install /passive /norestart"
     }
 
+    # Enable TLS 1.2
     xScript EnableTLS12
     {
         SetScript = {
@@ -119,7 +117,7 @@ configuration PhpOnIis
     }
 
     # Make sure the php cgi module is registered with IIS
-    Script phpHandler {
+    Script FixIisModule {
         
         GetScript = {                
 		    return @{
@@ -127,11 +125,12 @@ configuration PhpOnIis
 		    }
 	    }
         TestScript = {
-		    $currentStatus = Get-WebHandler -Name "PHP-FastCGI"
-		    Write-Debug "$($currentStatus)"
-		    return ($null -ne $currentStatus)                
+            Import-Module WebAdministration
+		    $fastCgi = Get-WebHandler -Name "PHP-FastCGI"
+		    return ($null -ne $fastCgi)                
 	    }
         SetScript = {
+            Import-Module WebAdministration
             $phpCgiPath = "$($using:PhpInstallPath)\php-cgi.exe"
             New-WebHandler -Name "PHP-FastCGI" -Path "*.php" -Verb "*" -Modules "FastCgiModule" -ScriptProcessor $phpCgiPath -ResourceType Either
         }
@@ -148,13 +147,3 @@ configuration PhpOnIis
         DependsOn = "[Archive]PHP"
     }
 }
-
-#Create the MOF
-PhpOnIis -PackageFolder "C:\packages" `
-    -PhpDownloadUri  "https://windows.php.net/downloads/releases/php-7.4.4-nts-Win32-vc15-x64.zip"`
-    -VcplusRedistDownloadUri "https://aka.ms/vs/16/release/vc_redist.x64.exe" `
-    -PhpInstallPath "C:\php"
-
-#Apply the configuration
-Start-DscConfiguration -Path .\PhpOnIis -Wait -Verbose -Force
-    

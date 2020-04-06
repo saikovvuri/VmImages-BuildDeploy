@@ -6,11 +6,11 @@
       "tenant_id": "{{env `ARM_TENANT_ID`}}",
       "subscription_id": "{{env `ARM_SUBSCRIPTION_ID`}}",
       
-      "managed_image_prefix": "",
-      "managed_image_resource_group_name": "",
+      "managed_image_prefix": "goldimage",
+      "managed_image_resource_group_name": "goldimage-container",
       
-      "windows_image_sku": "",
-      "azure_location": "",
+      "windows_image_sku": "2016-Datacenter",
+      "azure_location": "eastus2",
       
       "WorkingDirectory": "{{env `System_DefaultWorkingDirectory`}}"
 
@@ -24,7 +24,7 @@
             "tenant_id": "{{user `tenant_id`}}",
             "subscription_id": "{{user `subscription_id`}}",
 
-            "managed_image_name": "scimage-{{isotime \"200601020304\"}}",
+            "managed_image_name": "{{user `managed_image_prefix`}}-{{isotime \"200601020304\"}}",
             "managed_image_resource_group_name": "{{user `managed_image_resource_group_name`}}",
 
             "os_type": "Windows",
@@ -45,7 +45,7 @@
             "azure_tags": {
                 "creationDate": "{{isotime \"200601020304\"}}",
                 "task": "Image deployment"
-            },
+            }
             
         }
 
@@ -72,12 +72,20 @@
         },
         {
             "type": "dsc",
-            "manifest_file": "DSCConfiguration.ps1",
-            "configuration_name": "webConfiguration",
+            "manifest_file": "IISWithPhpInstallConfiguration.ps1",
+            "configuration_name": "PhpOnIis",
             "install_package_management": true,           
             "install_modules": {
-              "xPSDesiredStateConfiguration": "6.4.0.0",
+              "xWebAdministration": "3.1.1",
+              "xPSDesiredStateConfiguration": "9.1.0",
               "PackageManagement": "1.4.1"
+            },
+            "configuratio_params": {
+                "-PackageFolder": "C:\\packages",
+                "-PhpDownloadUri": "https://windows.php.net/downloads/releases/php-7.4.4-nts-Win32-vc15-x64.zip",
+                "-VcplusRedistDownloadUri": "https://aka.ms/vs/16/release/vc_redist.x64.exe",
+                "-PhpInstallPath": "C:\\php"
+
             }            
         },
         {
