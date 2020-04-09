@@ -58,7 +58,7 @@
               "WINRM QuickConfig -q",              
               "Install-PackageProvider Nuget -ForceBootstrap -Force",
               "Set-PSRepository -Name PSGallery -InstallationPolicy Trusted",
-              "Install-Module -Name PowerShellGet -Force -AllowClobber"    
+              "Install-Module -Name PowerShellGet -Force -AllowClobber"
               
             ]
         },
@@ -73,8 +73,9 @@
         {
             "type": "dsc",
             "manifest_file": "IISWithPhpDsc.ps1",
-            "configuration_name": "PhpOnIis",
+            "configuration_name": "PhpOnIis",            
             "install_package_management": true,           
+            "working_dir": "{{user `WorkingDirectory`}}",
             "install_modules": {
               "xWebAdministration": "3.1.1",
               "xPSDesiredStateConfiguration": "9.1.0",
