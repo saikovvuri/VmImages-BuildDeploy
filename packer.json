@@ -9,7 +9,7 @@
       "managed_image_prefix": "goldimage",
       "managed_image_resource_group_name": "goldimage-container",
       
-      "windows_image_sku": "2016-Datacenter",
+      "windows_image_sku": "2019-Datacenter",
       "azure_location": "eastus2",
       
       "WorkingDirectory": "{{env `System_DefaultWorkingDirectory`}}"
@@ -39,7 +39,7 @@
             "winrm_username": "packer",
 
             "location": "{{user `azure_location`}}",
-            "vm_size": "Standard_DS2",
+            "vm_size": "Standard_D2_V2",
             "async_resourcegroup_delete": true,
 
             "azure_tags": {
@@ -55,7 +55,7 @@
         {
             "type": "powershell",
             "inline": [
-              "WINRM QuickConfig -q",
+              "WINRM QuickConfig -q",              
               "Install-PackageProvider Nuget -ForceBootstrap -Force",
               "Set-PSRepository -Name PSGallery -InstallationPolicy Trusted",
               "Install-Module -Name PowerShellGet -Force -AllowClobber"    
@@ -72,7 +72,7 @@
         },
         {
             "type": "dsc",
-            "manifest_file": "IISWithPhpInstallConfiguration.ps1",
+            "manifest_file": "IISWithPhpDsc.ps1",
             "configuration_name": "PhpOnIis",
             "install_package_management": true,           
             "install_modules": {
@@ -80,11 +80,11 @@
               "xPSDesiredStateConfiguration": "9.1.0",
               "PackageManagement": "1.4.1"
             },
-            "configuratio_params": {
-                "-PackageFolder": "C:\\packages",
+            "configuration_params": {
+                "-PackageFolder": "$Env:HomeDrive\\packages",
                 "-PhpDownloadUri": "https://windows.php.net/downloads/releases/php-7.4.4-nts-Win32-vc15-x64.zip",
                 "-VcplusRedistDownloadUri": "https://aka.ms/vs/16/release/vc_redist.x64.exe",
-                "-PhpInstallPath": "C:\\php"
+                "-PhpInstallPath": "$Env:HomeDrive\\php"
 
             }            
         },
