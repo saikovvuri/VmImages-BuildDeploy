@@ -23,6 +23,8 @@ Primary folder is "packer-win2019-IIS-Php". It has the following contents
 ## Acknowledgements
 
 Greatly appreciate the below blogs posts for the insight and guidance
-- [Sam Cogan guideline on Packer Images + Azure Devops]https://samcogan.com/building-packer-images-with-azure-devops/
--  [Arinam Hazra blog post on simple image automation with packer] https://arindamhazra.com/create-azure-windows-vm-image-with-packer-and-powershell/
+
+[Sam Cogan guideline on Packer Images + Azure Devops]https://samcogan.com/building-packer-images-with-azure-devops/
+
+[Arinam Hazra blog post on simple image automation with packer] https://arindamhazra.com/create-azure-windows-vm-image-with-packer-and-powershell/
 
