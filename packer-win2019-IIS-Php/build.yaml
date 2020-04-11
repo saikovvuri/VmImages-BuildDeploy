@@ -1,0 +1,32 @@
+pool:
+  name: Azure Pipelines
+#Your build pipeline references a secret variable named ‘client_secret’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+variables:
+  client_id: 'client_id'
+  tenant_id: 'tenant_id'
+  subscription_id: 'subscription_id'
+  managed_image_resource_group_name: 'resource_group_name'
+  azure_location: 'eastus2'
+
+steps:
+- powershell: |
+   $tools="$env:build_sourcesdirectory\packer-win2019-IIS-Php"
+   Write-Host $tools
+   Write-Host "##vso[task.setvariable variable=PATH;]${tools};${env:PATH}";
+   
+  displayName: 'Set Packer Env Variable'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(System.DefaultWorkingdirectory)'
+  inputs:
+    SourceFolder: 'packer-win2019-IIS-Php'
+    Contents: IISWithPhpDsc.ps1
+    TargetFolder: '$(System.DefaultWorkingdirectory)'
+
+- task: PackerBuild@1
+  displayName: 'Build immutable image'
+  inputs:
+    templateType: custom
+    customTemplateLocation: 'packer-win2019-IIS-Php/packer-win2019.json'
+    customTemplateParameters: '{"client_id":"$(client_id)","client_secret":"$(client_secret)","tenant_id":"$(tenant_id)","subscription_id":"$(subscription_id)","managed_image_resource_group_name":"$(managed_image_resource_group_name)","azure_location":"$(azure_location)"}'
+    imageUri: '$imageURL'

@@ -11,9 +11,10 @@ Primary folder is "packer-win2019-IIS-Php". It has the following contents
 1. packer template
 2. powershell dsc script
 3. packer dsc provisioner, plugin that needs to reside alongside the packer exe file
-4. and finally packer exe file
+4. packer exe file
 ..* since packer should be able to locate the packer dsc provisioner so 2 options are download both packer exe and provisioner exe to a known location in the repo and modify the PATH variable to use this version of packer exe
 --* or use a self-hosted agent and set up the environment accordingly
+5. Build yaml for someone to base their build pipeline of
 
 ## Future Work
 
