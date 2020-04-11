@@ -7,10 +7,10 @@
       "subscription_id": "{{env `ARM_SUBSCRIPTION_ID`}}",
       
       "managed_image_prefix": "goldimage",
-      "managed_image_resource_group_name": "goldimage-container",
+      "managed_image_resource_group_name": "{{env `goldimage_rg`}}",
       
       "windows_image_sku": "2019-Datacenter",
-      "azure_location": "eastus2",
+      "azure_location": "{{env `az_region`}}",
       
       "WorkingDirectory": "{{env `System_DefaultWorkingDirectory`}}"
 
